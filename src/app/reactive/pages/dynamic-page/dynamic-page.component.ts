@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 
 @Component({
   templateUrl: './dynamic-page.component.html',
@@ -14,7 +14,9 @@ export class DynamicPageComponent {
       ['The legend of Zelda', Validators.required],
       ['Pokémon', Validators.required]
     ])
-  })
+  });
+
+  public newFavorite: FormControl= new FormControl('',[ Validators.required ])
 
   constructor(private fb: FormBuilder){}
 
@@ -48,6 +50,20 @@ export class DynamicPageComponent {
     return null;
   }
 
+  onAddToFavorites():void{
+    if (this.newFavorite.invalid) return;
+    const newGame = this.newFavorite.value;
+    //forma de agregar el juego sin el FormBuilder:
+    //this.favoritesGames.push( new FormControl(newGame, Validators.required))
+
+    //como se agregaga con FormBuilder
+    this.favoritesGames.push(
+      this.fb.control(newGame, Validators.required)
+    );
+    //para resetear el campo y dejarlo pristine
+    this.newFavorite.reset();
+  }
+
   onDeleteFAvorite( index: number):void{
     this.favoritesGames.removeAt(index)
   }
@@ -58,6 +74,7 @@ export class DynamicPageComponent {
       return;
     }
     console.log(this.myForm.value);
+    (this.myForm.controls['favoritesGames'] as FormArray) = this.fb.array([])
     this.myForm.reset();
   }
 }
